@@ -45,6 +45,7 @@ public class TaskRegistrarAutoConfig implements EnvironmentAware, SchedulingConf
 
     @Override
     public void setEnvironment(Environment environment) {
+        //setEnvironment 在 configureTasks 之前执行 ———— 先设置好环境，再设置定时任务
         String prefix = "chatbot-api.";
         String launchListStr = environment.getProperty(prefix + "launchList");
         if (StringUtils.isEmpty(launchListStr)) return;
@@ -52,6 +53,7 @@ public class TaskRegistrarAutoConfig implements EnvironmentAware, SchedulingConf
             Map<String, Object> taskGroupProps = PropertyUtil.handle(environment, prefix + groupKey, Map.class);
             taskGroupMap.put(groupKey, taskGroupProps);
         }
+        logger.info("设置应用环境 launchListStr：{} ", launchListStr);
     }
 
     @Override
@@ -64,10 +66,11 @@ public class TaskRegistrarAutoConfig implements EnvironmentAware, SchedulingConf
             String cookie = taskGroup.get("cookie").toString();
             String openAiKey = taskGroup.get("openAiKey").toString();
             String cronExpressionBase64 = taskGroup.get("cronExpression").toString();
-            //如果decode会报错，可能和环境有关系
+            //如果decode会报错，可能和环境有关系 ———— 这里可以加密
             //String cronExpression = new String(Base64.getDecoder().decode(cronExpressionBase64), StandardCharsets.UTF_8);
             boolean silenced = Boolean.parseBoolean(taskGroup.get("silenced").toString());
             logger.info("创建任务 groupName：{} groupId：{} cronExpression：{}", groupName, groupId, cronExpressionBase64);
+
             // 添加任务
             taskRegistrar.addCronTask(new ChatbotTask(groupName, groupId, cookie, openAiKey, zsxqApi, openAI, silenced), cronExpressionBase64);
         }

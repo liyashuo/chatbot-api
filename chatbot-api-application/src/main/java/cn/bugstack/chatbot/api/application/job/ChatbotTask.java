@@ -67,8 +67,10 @@ public class ChatbotTask implements Runnable {
             }
 
             // 2. AI 回答
+            //一次只回答一个，如果一次性都回答完毕，可能被风控检测到
             Topics topic = topics.get(topics.size() - 1);
             String answer = openAI.doChatGPT(openAiKey, topic.getQuestion().getText().trim());
+
             // 3. 问题回复
             boolean status = zsxqApi.answer(groupId, cookie, topic.getTopic_id(), answer, silenced);
             logger.info("{} 编号：{} 问题：{} 回答：{} 状态：{}", groupName, topic.getTopic_id(), topic.getQuestion().getText(), answer, status);
