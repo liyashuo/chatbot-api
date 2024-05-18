@@ -1,0 +1,23 @@
+{
+  "id": "chatcmpl-9Q8pI6K7ncdMM6uauShvlj9pk4inL",
+  "object": "chat.completion",
+  "created": 1716017484,
+  "model": "gpt-35-turbo",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello! How can I assist you today?"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 9,
+    "total_tokens": 18
+  },
+  "system_fingerprint": "fp_2f57f81c11"
+}

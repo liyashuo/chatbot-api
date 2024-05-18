@@ -14,11 +14,13 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 小傅哥，微信：fustack
@@ -35,14 +37,30 @@ public class OpenAI implements IOpenAI {
     public String doChatGPT(String openAiKey, String question) throws IOException {
 
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        // 代理地址；open.aiproxy.xyz、open2.aiproxy.xyz
-        HttpPost post = new HttpPost("https://api.openai.com/v1/completions");
+        // 代理地址；https://github.com/chatanywhere/GPT_API_free
+        HttpPost post = new HttpPost("https://api.chatanywhere.tech/v1/chat/completions");
         post.addHeader("Content-Type", "application/json");
         post.addHeader("Authorization", "Bearer " + openAiKey);
 
-        String paramJson = "{\"model\": \"text-davinci-003\", \"prompt\": \"" + question + "\", \"temperature\": 0, \"max_tokens\": 1024}";
+        /**
+         * ai请求数据
+         * {
+         *   "model": "gpt-3.5-turbo",
+         *   "messages": [{"role": "user", "content": "Hello!"}]
+         * }
+         */
 
-        StringEntity stringEntity = new StringEntity(paramJson, ContentType.create("text/json", "UTF-8"));
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("model", "gpt-3.5-turbo");
+        List<Map<String, String>> dataList = new ArrayList<>();
+        dataList.add(new HashMap<String, String>(){{
+            put("role", "user");
+            put("content", question);
+        }});
+        paramMap.put("messages", dataList);
+
+        String jsonString = JSON.toJSONString(paramMap);
+        StringEntity stringEntity = new StringEntity(jsonString, ContentType.create("text/json", "UTF-8"));
         post.setEntity(stringEntity);
 
         CloseableHttpResponse response = httpClient.execute(post);
@@ -52,7 +70,7 @@ public class OpenAI implements IOpenAI {
             StringBuilder answers = new StringBuilder();
             List<Choices> choices = aiAnswer.getChoices();
             for (Choices choice : choices) {
-                answers.append(choice.getText());
+                answers.append(choice.getMessage().getContent());
             }
             return answers.toString();
         } else {
