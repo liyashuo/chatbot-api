@@ -75,6 +75,7 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
 
+        <!--   注意这里引入了domain模块，这样才能在interface包调用其他包的内容   -->
         <dependency>
             <groupId>cn.bugstack.ai</groupId>
             <artifactId>chatbot-api-domain</artifactId>

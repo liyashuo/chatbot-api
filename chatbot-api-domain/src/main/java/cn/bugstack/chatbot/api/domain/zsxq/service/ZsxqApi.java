@@ -35,6 +35,9 @@ public class ZsxqApi implements IZsxqApi {
 
     @Override
     public UnAnsweredQuestionsAggregates queryUnAnsweredQuestionsTopicId(String groupId, String cookie) throws IOException {
+
+        //参考cn.bugstack.chatbot.api.test.ApiTest.query_unanswered_questions()
+
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
         HttpGet get = new HttpGet("https://api.zsxq.com/v2/groups/" + groupId + "/topics?scope=unanswered_questions&count=20");
@@ -46,6 +49,7 @@ public class ZsxqApi implements IZsxqApi {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String jsonStr = EntityUtils.toString(response.getEntity());
             logger.info("拉取提问数据。groupId：{} jsonStr：{}", groupId, jsonStr);
+            // 这里需要做一下转换，jsonStr —— UnAnsweredQuestionsAggregates
             return JSON.parseObject(jsonStr, UnAnsweredQuestionsAggregates.class);
         } else {
             throw new RuntimeException("queryUnAnsweredQuestionsTopicId Err Code is " + response.getStatusLine().getStatusCode());
@@ -54,6 +58,8 @@ public class ZsxqApi implements IZsxqApi {
 
     @Override
     public boolean answer(String groupId, String cookie, String topicId, String text, boolean silenced) throws IOException {
+
+        //参考cn.bugstack.chatbot.api.test.ApiTest.answer()
 
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
@@ -73,6 +79,7 @@ public class ZsxqApi implements IZsxqApi {
          */
 
         AnswerReq answerReq = new AnswerReq(new ReqData(text, silenced));
+        //将 AnswerReq 转化为json str
         String paramJson = JSONObject.toJSONString(answerReq);
 
         StringEntity stringEntity = new StringEntity(paramJson, ContentType.create("text/json", "UTF-8"));
@@ -82,6 +89,7 @@ public class ZsxqApi implements IZsxqApi {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String jsonStr = EntityUtils.toString(response.getEntity());
             logger.info("回答问题结果。groupId：{} topicId：{} jsonStr：{}", groupId, topicId, jsonStr);
+            //AnswerRes里面只有succeeded，舍弃了resp_data
             AnswerRes answerRes = JSON.parseObject(jsonStr, AnswerRes.class);
             return answerRes.isSucceeded();
         } else {
